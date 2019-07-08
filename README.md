@@ -7,6 +7,8 @@ making that library at least marginally accessible to visually-impaired programm
 
 ## Dependencies
 
+(Also FFMpeg!)
+
 This library works only on Python 3.  It requires the following other libraries to be installed where Python can find them.  This is best done using `pip install`.  All the libraries are available on [PyPI](https://pypi.org/).
 
   * [gTTS](https://github.com/pndurette/gTTS)
