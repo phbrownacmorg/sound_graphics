@@ -7,9 +7,11 @@ making that library at least marginally accessible to visually-impaired programm
 
 ## Dependencies
 
+(Also FFMpeg!)
+
 This library works only on Python 3.  It requires the following other libraries to be installed where Python can find them.  This is best done using `pip install`.  All the libraries are available on [PyPI](https://pypi.org/).
 
-  * [gtts](https://github.com/pndurette/gTTS)
+  * [gTTS](https://github.com/pndurette/gTTS)
   * [pygame](https://www.pygame.org/)
   * [numpy](https://www.numpy.org/)
   * [graphics.py](https://mcsp.wartburg.edu/zelle/python/graphics.py) (yes, this is [on PyPI](https://pypi.org/project/graphics.py/))
