@@ -194,7 +194,7 @@ class SoundObject(g.GraphicsObject):
         tts.save(mp3name)
         ffmpegExe = 'ffmpeg'
         if sys.platform == 'win32':
-            ffmpegExe = os.path.join('C:',r'\ffmpeg','bin','ffmpeg.exe')
+            ffmpegExe = os.path.join('..','ffmpeg','bin','ffmpeg.exe')
         subprocess.run([ffmpegExe, '-i', mp3name, wavname])
         os.remove(mp3name)
 
