@@ -14,7 +14,7 @@ import string
 import subprocess
 import sys
 from tkinter import Event
-from typing import Optional, Tuple, Union
+from typing import Optional, List, Tuple, Union
 #import pyttsx
 
 class GraphWin(g.GraphWin):
@@ -285,6 +285,33 @@ class SoundObject(g.GraphicsObject):
         centerPt = g.Point((p1.getX() + p2.getX())/2, (p1.getY() + p2.getY())/2)
         return self.boxContains(centerPt, width, height, x, y)
 
+    def distToLineSeg(self, x:float, y:float, p1:g.Point, p2:g.Point) -> float:
+        """Finds the distance in screen space from the point (x, y) to the line p1-p2,
+        by projecting (x, y) onto the line."""
+        # Convert p1, p2 to screen coordinates and make the vectors
+        assert self.canvas is not None
+        scr_p1 = pygame.math.Vector2(self.canvas.toScreen(p1.getX(), p1.getY()))
+        scr_p2 = pygame.math.Vector2(self.canvas.toScreen(p2.getX(), p2.getY()))
+        p1p2 = scr_p2 - scr_p1
+        p2p1 = scr_p1 - scr_p2
+
+        p = pygame.math.Vector2(x, y)
+        p1p = p - scr_p1
+        p2p = p - scr_p2
+        # If (x, y) is behind p1, distance is distance to p1
+        if p1p.dot(p1p2) < 0:
+            d = scr_p1.distance_to(p)
+        elif p2p.dot(p2p1) < 0: # p2 is closest
+            d = scr_p2.distance_to(p)
+        # Else, project p onto line
+        else:
+            # Strang's approach: naah
+            #   p1p2sqr = p1p2.length_squared()
+            #   d = math.sqrt((p1p.length_squared() * p1p2sqr - p1p2.dot(p1p)**2)/p1p2sqr)
+            # lbackstrom: https://www.topcoder.com/community/data-science/data-science-tutorials/geometry-concepts-basic-concepts
+            d = abs(p1p2.cross(p1p)/p1p2.length())
+        return d
+
     def hasSound(self) -> bool:
         return self._sound != None
 
@@ -321,32 +348,8 @@ class Line(SoundObject, g.Line):
         
     def containsPt(self, x:float, y:float) -> int:
         """Finds the distance from the point (x, y) to this line, by projecting
-        (x, y) onto the line.  I have not yet figured out how to handle the 
-        cases where (x, y) is beyond one of the ends of the line segment--which
-        is a problem, since that's likely a common case."""
-        # Convert p1, p2 to screen coordinates and make the vectors
-        assert self.canvas is not None
-        scr_p1 = pygame.math.Vector2(self.canvas.toScreen(self.getP1().getX(), self.getP1().getY()))
-        scr_p2 = pygame.math.Vector2(self.canvas.toScreen(self.getP2().getX(), self.getP2().getY()))
-        p1p2 = scr_p2 - scr_p1
-        p2p1 = scr_p1 - scr_p2
-
-        p = pygame.math.Vector2(x, y)
-        p1p = p - scr_p1
-        p2p = p - scr_p2
-        # If (x, y) is behind p1, distance is distance to p1
-        if p1p.dot(p1p2) < 0:
-            d = scr_p1.distance_to(p)
-        elif p2p.dot(p2p1) < 0: # p2 is closest
-            d = scr_p2.distance_to(p)
-        # Else, project p onto line
-        else:
-            # Strang's approach: naah
-            #   p1p2sqr = p1p2.length_squared()
-            #   d = math.sqrt((p1p.length_squared() * p1p2sqr - p1p2.dot(p1p)**2)/p1p2sqr)
-            # lbackstrom: https://www.topcoder.com/community/data-science/data-science-tutorials/geometry-concepts-basic-concepts
-            d = abs(p1p2.cross(p1p)/p1p2.length())
-        
+        (x, y) onto the line."""
+        d = self.distToLineSeg(x, y, self.getP1(), self.getP2())
         result = SoundObject.OUTSIDE
         if d == 0:
             result = SoundObject.INSIDE
@@ -410,8 +413,35 @@ class Oval(SoundObject, g.Oval):
         return result
 
 #TODO: Figure out containment from the start
-class Polygon(g.Polygon):
-    pass
+class Polygon(SoundObject, g.Polygon):
+    def __init__(self, *points,
+                 sound:Union[pygame.mixer.Sound,str,float,None] = None,
+                 text:Optional[str] = None) -> None:
+        SoundObject.__init__(self, sound, text)
+        g.Polygon.__init__(self, points)
+
+    # def containsPt(self, x:float, y:float) -> int:
+    #     result:int = SoundObject.OUTSIDE
+    #     # Is it INSIDE?
+    #     ## Intersect each line segment with the ray from (x, y) to +x
+    #     intersections:int = 0
+    #     for i in range(len(self.points)):
+    #         start:g.Point = self.points[i]
+    #         end:g.Point = self.points[(i+1) % len(self.points)]
+    #         if ((start.y - y) * (end.y - y) <= 0) \
+    #             and (start.x >= x or end.x >= x) \
+    #             and ((start.x + (((y - start.y)*(end.x - start.x))/(end.y - start.y))) \
+    #                   >= x):
+    #             intersections += 1
+    #     if (intersections % 2) == 1: # Odd number of intersections
+    #         result = SoundObject.INSIDE
+    #     else:        
+    #         # Is it NEAR?
+    #         pass
+    #         # dist = 
+    #     # Otherwise, it's OUTSIDE
+    #     return result
+
 
 class Text(SoundObject, g.Text):
     def __init__(self, p:g.Point, text:str, 
@@ -465,7 +495,7 @@ def test() -> None:
     win.setCoords(0,0,10,10)
     t = Text(g.Point(5,5), "Centered Text")
     t.draw(win)
-    p = Polygon(g.Point(1,1), g.Point(5,3), g.Point(2,7))
+    p = Polygon([g.Point(1,1), g.Point(5,3), g.Point(2,7)], sound='Polygon')
     p.draw(win)
     e = Entry(g.Point(5,6), 10)
     e.draw(win)
