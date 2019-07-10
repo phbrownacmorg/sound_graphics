@@ -41,7 +41,7 @@ def main(args:List[str]) -> int:
     line2.setOutline('red')
     line2.draw(w)
     
-    poly:Polygon = Polygon(p1, center, p3)
+    poly:Polygon = Polygon(p1, center, p3, sound='Pointy triangle')
     poly.draw(w)
     
     p4:Point = Point(300, 550)

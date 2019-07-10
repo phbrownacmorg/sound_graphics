@@ -418,7 +418,7 @@ class Polygon(SoundObject, g.Polygon):
                  sound:Union[pygame.mixer.Sound,str,float,None] = None,
                  text:Optional[str] = None) -> None:
         SoundObject.__init__(self, sound, text)
-        g.Polygon.__init__(self, points)
+        g.Polygon.__init__(self, list(points))
 
     # def containsPt(self, x:float, y:float) -> int:
     #     result:int = SoundObject.OUTSIDE
@@ -495,7 +495,7 @@ def test() -> None:
     win.setCoords(0,0,10,10)
     t = Text(g.Point(5,5), "Centered Text")
     t.draw(win)
-    p = Polygon([g.Point(1,1), g.Point(5,3), g.Point(2,7)], sound='Polygon')
+    p = Polygon(g.Point(1,1), g.Point(5,3), g.Point(2,7), sound='Polygon')
     p.draw(win)
     e = Entry(g.Point(5,6), 10)
     e.draw(win)
