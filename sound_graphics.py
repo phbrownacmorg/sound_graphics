@@ -420,28 +420,32 @@ class Polygon(SoundObject, g.Polygon):
         SoundObject.__init__(self, sound, text)
         g.Polygon.__init__(self, list(points))
 
-    # def containsPt(self, x:float, y:float) -> int:
-    #     result:int = SoundObject.OUTSIDE
-    #     # Is it INSIDE?
-    #     ## Intersect each line segment with the ray from (x, y) to +x
-    #     intersections:int = 0
-    #     for i in range(len(self.points)):
-    #         start:g.Point = self.points[i]
-    #         end:g.Point = self.points[(i+1) % len(self.points)]
-    #         if ((start.y - y) * (end.y - y) <= 0) \
-    #             and (start.x >= x or end.x >= x) \
-    #             and ((start.x + (((y - start.y)*(end.x - start.x))/(end.y - start.y))) \
-    #                   >= x):
-    #             intersections += 1
-    #     if (intersections % 2) == 1: # Odd number of intersections
-    #         result = SoundObject.INSIDE
-    #     else:        
-    #         # Is it NEAR?
-    #         pass
-    #         # dist = 
-    #     # Otherwise, it's OUTSIDE
-    #     return result
-
+    def containsPt(self, x:float, y:float) -> int:
+        result:int = SoundObject.OUTSIDE
+        # Is it INSIDE?
+        ## Intersect each line segment with the ray from (x, y) to +x
+        intersections:int = 0
+        for i in range(len(self.points)):
+            start:g.Point = self.points[i]
+            end:g.Point = self.points[(i+1) % len(self.points)]
+            if ((start.y - y) * (end.y - y) <= 0) \
+                and (start.x >= x or end.x >= x) \
+                and ((start.x + (((y - start.y)*(end.x - start.x))/(end.y - start.y))) \
+                      >= x):
+                intersections += 1
+        if (intersections % 2) == 1: # Odd number of intersections
+            result = SoundObject.INSIDE
+        else:        
+            # Is it NEAR?
+            mindist:float = self.distToLineSeg(x, y, self.points[-1], 
+                                                self.points[0])
+            for i in range(len(self.points)-1):
+                dist:float = self.distToLineSeg(x, y, self.points[i], self.points[i+1])
+                mindist = min(mindist, dist)
+            if mindist < SoundObject.FRINGE:
+                result = SoundObject.NEAR
+        # Otherwise, it's OUTSIDE
+        return result
 
 class Text(SoundObject, g.Text):
     def __init__(self, p:g.Point, text:str, 
