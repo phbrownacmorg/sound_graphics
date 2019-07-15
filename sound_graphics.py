@@ -426,11 +426,11 @@ class Polygon(SoundObject, g.Polygon):
         ## Intersect each line segment with the ray from (x, y) to +x
         intersections:int = 0
         for i in range(len(self.points)):
-            start:g.Point = self.points[i]
-            end:g.Point = self.points[(i+1) % len(self.points)]
-            if ((start.y - y) * (end.y - y) <= 0) \
-                and (start.x >= x or end.x >= x) \
-                and ((start.x + (((y - start.y)*(end.x - start.x))/(end.y - start.y))) \
+            start:Tuple[int, int] = self.ptToScreenTuple(self.points[i])
+            end:Tuple[int, int] = self.ptToScreenTuple(self.points[(i+1) % len(self.points)])
+            if ((start[1] - y) * (end[1] - y) <= 0) \
+                and (start[0] >= x or end[0] >= x) \
+                and ((start[0] + (((y - start[1])*(end[0] - start[0]))/(end[1] - start[1]))) \
                       >= x):
                 intersections += 1
         if (intersections % 2) == 1: # Odd number of intersections
