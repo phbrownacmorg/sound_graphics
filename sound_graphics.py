@@ -8,6 +8,7 @@ import os
 import numbers
 import numpy as np
 import pygame
+import pyttsx3
 import pygame.mixer
 import pygame.sndarray
 import string
@@ -32,6 +33,9 @@ class GraphWin(g.GraphWin):
         self.bind("<Motion>", self._onMouseMove)
         self.bind("<Enter>", self._onEnter)
         self.bind("<Leave>", self._onLeave)
+
+        # Create the engine for pyttsx library
+        self.engine = pyttsx3.init()
         
         # Generate static programmatically
         noise = np.random.normal(0, 0.05, Tone.SAMPLE_RATE * 3)
@@ -79,6 +83,7 @@ class GraphWin(g.GraphWin):
     def _playSoundOutside(self, Xprop:float) -> None:
         self.mousechannel.set_volume(0.1 * (1 - Xprop), 0.1 * Xprop)
         self.bgchannel.set_volume(0.5 * (1 - Xprop), 0.5 * Xprop)
+        self.engine.stop()
         self.itemchannel.stop()
 
     def _onEnter(self, e:Event) -> None:
@@ -87,6 +92,7 @@ class GraphWin(g.GraphWin):
     def _onLeave(self, e:Event) -> None:
         self.bgchannel.stop()
         self.itemchannel.stop()
+        self.engine.stop()
         self.mousechannel.stop()
 
     def _onMouseMove(self, e:Event) -> None:
