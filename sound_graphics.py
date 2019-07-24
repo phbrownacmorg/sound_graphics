@@ -46,6 +46,7 @@ class GraphWin(g.GraphWin):
         self.bgchannel = pygame.mixer.Channel(0)
         
         self.itemchannel = pygame.mixer.Channel(1)
+        self.itemsound = None # Item sound currently playing.
         self.mousechannel = pygame.mixer.Channel(2)
         pygame.mixer.set_reserved(3)
         self.bgchannel.play(self.bgsound, loops=-1)
@@ -64,21 +65,36 @@ class GraphWin(g.GraphWin):
             loops:int) -> None:
         self.mousechannel.set_volume(0)
         self.bgchannel.set_volume(0)
-        if self.itemchannel.get_sound() != sound:
+        #if self.itemchannel.get_sound() != sound:
+        if self.itemsound != sound:
+            self.itemsound = sound
             self.itemchannel.stop()
-            #self.ttsengine.say('Engine')
-            #self.ttsengine.runAndWait()
-            self.itemchannel.play(sound, loops)
+            self.engine.stop()
+            if type(sound) != type(''): # sound is a pygame.mixer.Sound
+                self.itemchannel.play(sound, loops)
         self.itemchannel.set_volume((1 - Xprop), Xprop)
-
+        if type(sound) == type(''): #and not self.engine.isBusy():
+            self.engine.setProperty('volume', 1.0)
+            self.engine.say(sound)
+            #self.engine.say("Engine is running, but we don't know if we can interrupt it.")
+            self.engine.runAndWait()
+            
     def _playSoundNear(self, Xprop:float, sound:pygame.mixer.Sound, 
             loops:int) -> None:
         self.mousechannel.set_volume(0.1 * (1 - Xprop), 0.1 * Xprop)
         self.bgchannel.set_volume(0.1 * (1 - Xprop), 0.1 * Xprop)
-        if self.itemchannel.get_sound() != sound:
+        #if self.itemchannel.get_sound() != sound:
+        if self.itemsound != sound:
+            self.itemsound = sound
             self.itemchannel.stop()
-            self.itemchannel.play(sound, loops)
+            self.engine.stop()
+            if type(sound) != type(''):
+                self.itemchannel.play(sound, loops)
         self.itemchannel.set_volume(0.3 * (1 - Xprop), 0.3 * Xprop)
+        if type(sound) == type(''): #and not self.engine.isBusy():
+            self.engine.setProperty('volume', 0.3)
+            self.engine.say(sound)
+            self.engine.runAndWait()
 
     def _playSoundOutside(self, Xprop:float) -> None:
         self.mousechannel.set_volume(0.1 * (1 - Xprop), 0.1 * Xprop)
@@ -177,7 +193,7 @@ class SoundObject(g.GraphicsObject):
                 self._loops:int = 0
             elif isinstance(sound, str): #sound is a string
                 if len(sound) > 0:
-                    self._sound = self.textToSpeech(sound)
+                    self._sound = sound #self.textToSpeech(sound)
                     self._loops = 0
             elif isinstance(sound, float):
                 # Make a tone out of it
