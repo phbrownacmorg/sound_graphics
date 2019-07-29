@@ -61,63 +61,33 @@ class GraphWin(g.GraphWin):
         y /= self.getHeight()
         return x, y
 
-    def runEngine(self, sound:pygame.mixer.Sound, channelVolumeLeft, channelVolumeRight, engineVolume):
-        if self.itemsound != sound:
-            self.itemsound = sound
+    def runEngine(self, Xprop:float, sound:pygame.mixer.Sound, loops:int, 
+                    mouseVol:float, bgVol:float, itemVol:float):
+        self.mousechannel.set_volume(mouseVol * (1 - Xprop), mouseVol * Xprop)
+        self.bgchannel.set_volume(bgVol * (1 - Xprop), bgVol * Xprop)
+        if self.itemsound == None or self.itemsound != sound:
             self.itemchannel.stop()
             self.engine.stop()
-            if type(sound) != type(''): # sound is a pygame.mixer.Sound
+            self.itemsound = sound
+            if issubclass(type(sound), pygame.mixer.Sound): # sound is a pygame.mixer.Sound
                 self.itemchannel.play(sound, loops)
-        self.itemchannel.set_volume(channelVolumeLeft, channelVolumeRight)
-        if type(sound) == type(''): #and not self.engine.isBusy():
-            self.engine.setProperty('volume', engineVolume)
+                self.itemchannel.set_volume(itemVol * (1 - Xprop), itemVol * Xprop)
+        if issubclass(type(sound), str): #and not self.engine.isBusy():
+            self.engine.setProperty('volume', itemVol)
             self.engine.say(sound)
             #self.engine.say("Engine is running, but we don't know if we can interrupt it.")
             self.engine.runAndWait()
-            
 
     def _playSoundInside(self, Xprop:float, sound:pygame.mixer.Sound, 
             loops:int) -> None:
-        self.mousechannel.set_volume(0)
-        self.bgchannel.set_volume(0)
-        #if self.itemchannel.get_sound() != sound:
-        self.runEngine(sound, (1 - Xprop), Xprop, 1.0)
-        # if self.itemsound != sound:
-        #     self.itemsound = sound
-        #     self.itemchannel.stop()
-        #     self.engine.stop()
-        #     if type(sound) != type(''): # sound is a pygame.mixer.Sound
-        #         self.itemchannel.play(sound, loops)
-        # self.itemchannel.set_volume((1 - Xprop), Xprop)
-        # if type(sound) == type(''): #and not self.engine.isBusy():
-        #     self.engine.setProperty('volume', 1.0)
-        #     self.engine.say(sound)
-        #     #self.engine.say("Engine is running, but we don't know if we can interrupt it.")
-        #     self.engine.runAndWait()
+        self.runEngine(Xprop, sound, loops, 0, 0, 1.0)
             
     def _playSoundNear(self, Xprop:float, sound:pygame.mixer.Sound, 
             loops:int) -> None:
-        self.mousechannel.set_volume(0.1 * (1 - Xprop), 0.1 * Xprop)
-        self.bgchannel.set_volume(0.1 * (1 - Xprop), 0.1 * Xprop)
-        #if self.itemchannel.get_sound() != sound:
-        self.runEngine(sound, 0.3 * (1 - Xprop), 0.3 * Xprop, 0.3)
-        # if self.itemsound != sound:
-        #     self.itemsound = sound
-        #     self.itemchannel.stop()
-        #     self.engine.stop()
-        #     if type(sound) != type(''):
-        #         self.itemchannel.play(sound, loops)
-        # self.itemchannel.set_volume(0.3 * (1 - Xprop), 0.3 * Xprop)
-        # if type(sound) == type(''): #and not self.engine.isBusy():
-        #     self.engine.setProperty('volume', 0.3)
-        #     self.engine.say(sound)
-        #     self.engine.runAndWait()
+        self.runEngine(Xprop, sound, loops, 0.1, 0.1, 0.3)
 
     def _playSoundOutside(self, Xprop:float) -> None:
-        self.mousechannel.set_volume(0.1 * (1 - Xprop), 0.1 * Xprop)
-        self.bgchannel.set_volume(0.5 * (1 - Xprop), 0.5 * Xprop)
-        self.engine.stop()
-        self.itemchannel.stop()
+        self.runEngine(Xprop, None, 0, 0.1, 0.5, 0)
 
     def _onEnter(self, e:Event) -> None:
         self.bgchannel.play(self.bgsound, loops=-1)
@@ -207,7 +177,7 @@ class SoundObject(g.GraphicsObject):
         if sound != None:
             if hasattr(sound, 'play'): # sound is a Sound
                 self._sound = sound
-                self._loops:int = 0
+                self._loops:int = -1
             elif isinstance(sound, str): #sound is a string
                 if len(sound) > 0:
                     self._sound = sound #self.textToSpeech(sound)

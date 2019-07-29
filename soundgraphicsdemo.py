@@ -27,7 +27,7 @@ def main(args:List[str]) -> int:
     circ2.setFill('white')
     circ2.draw(w)
     
-    rect:Rectangle = Rectangle(center, p2, sound=pygame.mixer.Sound('sounds/A-3s.wav'))
+    rect:Rectangle = Rectangle(center, p2, sound=pygame.mixer.Sound('sounds/centered_text.wav'))
     rect.setFill('purple')
     rect.draw(w)
     
