@@ -61,40 +61,57 @@ class GraphWin(g.GraphWin):
         y /= self.getHeight()
         return x, y
 
-    def _playSoundInside(self, Xprop:float, sound:pygame.mixer.Sound, 
-            loops:int) -> None:
-        self.mousechannel.set_volume(0)
-        self.bgchannel.set_volume(0)
-        #if self.itemchannel.get_sound() != sound:
+    def runEngine(self, sound:pygame.mixer.Sound, channelVolumeLeft, channelVolumeRight, engineVolume):
         if self.itemsound != sound:
             self.itemsound = sound
             self.itemchannel.stop()
             self.engine.stop()
             if type(sound) != type(''): # sound is a pygame.mixer.Sound
                 self.itemchannel.play(sound, loops)
-        self.itemchannel.set_volume((1 - Xprop), Xprop)
+        self.itemchannel.set_volume(channelVolumeLeft, channelVolumeRight)
         if type(sound) == type(''): #and not self.engine.isBusy():
-            self.engine.setProperty('volume', 1.0)
+            self.engine.setProperty('volume', engineVolume)
             self.engine.say(sound)
             #self.engine.say("Engine is running, but we don't know if we can interrupt it.")
             self.engine.runAndWait()
+            
+
+    def _playSoundInside(self, Xprop:float, sound:pygame.mixer.Sound, 
+            loops:int) -> None:
+        self.mousechannel.set_volume(0)
+        self.bgchannel.set_volume(0)
+        #if self.itemchannel.get_sound() != sound:
+        self.runEngine(sound, (1 - Xprop), Xprop, 1.0)
+        # if self.itemsound != sound:
+        #     self.itemsound = sound
+        #     self.itemchannel.stop()
+        #     self.engine.stop()
+        #     if type(sound) != type(''): # sound is a pygame.mixer.Sound
+        #         self.itemchannel.play(sound, loops)
+        # self.itemchannel.set_volume((1 - Xprop), Xprop)
+        # if type(sound) == type(''): #and not self.engine.isBusy():
+        #     self.engine.setProperty('volume', 1.0)
+        #     self.engine.say(sound)
+        #     #self.engine.say("Engine is running, but we don't know if we can interrupt it.")
+        #     self.engine.runAndWait()
             
     def _playSoundNear(self, Xprop:float, sound:pygame.mixer.Sound, 
             loops:int) -> None:
         self.mousechannel.set_volume(0.1 * (1 - Xprop), 0.1 * Xprop)
         self.bgchannel.set_volume(0.1 * (1 - Xprop), 0.1 * Xprop)
         #if self.itemchannel.get_sound() != sound:
-        if self.itemsound != sound:
-            self.itemsound = sound
-            self.itemchannel.stop()
-            self.engine.stop()
-            if type(sound) != type(''):
-                self.itemchannel.play(sound, loops)
-        self.itemchannel.set_volume(0.3 * (1 - Xprop), 0.3 * Xprop)
-        if type(sound) == type(''): #and not self.engine.isBusy():
-            self.engine.setProperty('volume', 0.3)
-            self.engine.say(sound)
-            self.engine.runAndWait()
+        self.runEngine(sound, 0.3 * (1 - Xprop), 0.3 * Xprop, 0.3)
+        # if self.itemsound != sound:
+        #     self.itemsound = sound
+        #     self.itemchannel.stop()
+        #     self.engine.stop()
+        #     if type(sound) != type(''):
+        #         self.itemchannel.play(sound, loops)
+        # self.itemchannel.set_volume(0.3 * (1 - Xprop), 0.3 * Xprop)
+        # if type(sound) == type(''): #and not self.engine.isBusy():
+        #     self.engine.setProperty('volume', 0.3)
+        #     self.engine.say(sound)
+        #     self.engine.runAndWait()
 
     def _playSoundOutside(self, Xprop:float) -> None:
         self.mousechannel.set_volume(0.1 * (1 - Xprop), 0.1 * Xprop)
