@@ -27,12 +27,12 @@ def main(args:List[str]) -> int:
     circ2.setFill('white')
     circ2.draw(w)
     
-    rect:Rectangle = Rectangle(center, p2, sound=pygame.mixer.Sound('sounds/centered_text.wav'))
+    rect:Rectangle = Rectangle(center, p2, sound=0.0) #sound=pygame.mixer.Sound('sounds/centered_text.wav'))
     rect.setFill('purple')
     rect.draw(w)
     
     p3:Point = Point(575, 450)
-    oval:Oval = Oval(center, p3, text='green oval')
+    oval:Oval = Oval(center, p3, sound=1.0)  #text='green oval')
     oval.setFill('green')
     oval.draw(w)
     
@@ -41,7 +41,7 @@ def main(args:List[str]) -> int:
     line2.setOutline('red')
     line2.draw(w)
     
-    poly:Polygon = Polygon(p1, center, p3, sound='Pointy triangle')
+    poly:Polygon = Polygon(p1, center, p3, sound=0.5) #sound='Pointy triangle')
     poly.draw(w)
     
     p4:Point = Point(300, 550)

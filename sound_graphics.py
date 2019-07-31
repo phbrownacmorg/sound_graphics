@@ -36,7 +36,22 @@ class GraphWin(g.GraphWin):
 
         # Create the engine for pyttsx library
         self.engine = pyttsx3.init()
-        
+
+        def onStart(name):
+           print('starting', name)
+        def onWord(name, location, length):
+            print( 'word', name, location, length)
+            if location > 10:
+                self.engine.endLoop()
+                self.itemsound = None
+        def onEnd(name, completed):
+            print('finishing', name, completed)
+            self.engine.endLoop()
+
+        self.engine.connect('started-utterance', onStart)
+        self.engine.connect('started-word', onWord)
+        self.engine.connect('finished-utterance', onEnd)
+
         # Generate static programmatically
         noise = np.random.normal(0, 0.05, Tone.SAMPLE_RATE * 3)
         noise = Tone.MAX_SAMPLE * noise
@@ -63,6 +78,7 @@ class GraphWin(g.GraphWin):
 
     def runEngine(self, Xprop:float, sound:pygame.mixer.Sound, loops:int, 
                     mouseVol:float, bgVol:float, itemVol:float):
+
         self.mousechannel.set_volume(mouseVol * (1 - Xprop), mouseVol * Xprop)
         self.bgchannel.set_volume(bgVol * (1 - Xprop), bgVol * Xprop)
         if self.itemsound == None or self.itemsound != sound:
@@ -76,7 +92,7 @@ class GraphWin(g.GraphWin):
             self.engine.setProperty('volume', itemVol)
             self.engine.say(sound)
             #self.engine.say("Engine is running, but we don't know if we can interrupt it.")
-            self.engine.runAndWait()
+            self.engine.startLoop()
 
     def _playSoundInside(self, Xprop:float, sound:pygame.mixer.Sound, 
             loops:int) -> None:
@@ -134,9 +150,9 @@ class GraphWin(g.GraphWin):
 
 class Tone(object):
     # Minimum and maximum frequencies in Hz
-    MIN_FREQ = 60
+    MIN_FREQ = 220
     LOG_MIN_FREQ = math.log(MIN_FREQ)
-    MAX_FREQ = 1200
+    MAX_FREQ = 880
     LOG_MAX_FREQ = math.log(MAX_FREQ)
     SAMPLE_RATE = 22050
     MAX_SAMPLE = 2 ** 15 - 1 # maximum value for any sample
