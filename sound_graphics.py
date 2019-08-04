@@ -135,7 +135,7 @@ class GraphWin(g.GraphWin):
                       and nearItem == None):
                     nearItem = item
         #print()
-        mousesound = Tone(1 - Yprop).getSound()
+        mousesound = Tone(1 - Yprop).getSound() #Tone(1 - Yprop).getSound()
         self.mousechannel.play(mousesound, loops = -1)
         if insideItem is not None:
             self._playSoundInside(Xprop, insideItem.sound(), insideItem.loops())
@@ -150,10 +150,13 @@ class GraphWin(g.GraphWin):
 
 class Tone(object):
     # Minimum and maximum frequencies in Hz
-    MIN_FREQ = 220
+    MIN_FREQ = 440
     LOG_MIN_FREQ = math.log(MIN_FREQ)
     MAX_FREQ = 880
     LOG_MAX_FREQ = math.log(MAX_FREQ)
+    
+    # RUMBLE_FREQ = 55
+
     SAMPLE_RATE = 22050
     MAX_SAMPLE = 2 ** 15 - 1 # maximum value for any sample
 
@@ -179,6 +182,19 @@ class Tone(object):
     def getSound(self) -> pygame.mixer.Sound:
         return self.sound
         
+    @staticmethod
+    def mouseTone(y:float) -> float:
+        # Takes a number between 0 and 1 and converts it into a tone in the
+        # frequency range of 110-220 Hz; to be used for the mouse.
+        MIN_MOUSE_TONE = 110 #Tone.MIN_FREQ * 0.25
+        LOG_MIN_MOUSE_TONE = math.log(MIN_MOUSE_TONE)
+        MAX_MOUSE_TONE = 220 #Tone.MAX_FREQ * 0.25
+        LOG_MAX_MOUSE_TONE = math.log(MAX_MOUSE_TONE)
+        if y < 0 or y > 1:
+            mTone:float = MAX_MOUSE_TONE * 4
+        else:
+            mTone = math.exp((1 - y) * LOG_MIN_MOUSE_TONE + y * LOG_MAX_MOUSE_TONE)
+        return mTone
 
 class SoundObject(g.GraphicsObject):
     def __init__(self, 
