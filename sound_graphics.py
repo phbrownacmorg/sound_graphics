@@ -135,7 +135,7 @@ class GraphWin(g.GraphWin):
                       and nearItem == None):
                     nearItem = item
         #print()
-        mousesound = Tone(1 - Yprop).getSound() #Tone(1 - Yprop).getSound()
+        mousesound = Tone(Tone.mouseTone(1 - Yprop)).getSound() #Tone(1 - Yprop).getSound()
         self.mousechannel.play(mousesound, loops = -1)
         if insideItem is not None:
             self._playSoundInside(Xprop, insideItem.sound(), insideItem.loops())
@@ -149,11 +149,11 @@ class GraphWin(g.GraphWin):
         pygame.quit()
 
 class Tone(object):
-    # Minimum and maximum frequencies in Hz
-    MIN_FREQ = 440
-    LOG_MIN_FREQ = math.log(MIN_FREQ)
-    MAX_FREQ = 880
-    LOG_MAX_FREQ = math.log(MAX_FREQ)
+    # # Minimum and maximum frequencies in Hz
+    # MIN_FREQ = 440
+    # LOG_MIN_FREQ = math.log(MIN_FREQ)
+    # MAX_FREQ = 880
+    # LOG_MAX_FREQ = math.log(MAX_FREQ)
     
     # RUMBLE_FREQ = 55
 
@@ -161,16 +161,16 @@ class Tone(object):
     MAX_SAMPLE = 2 ** 15 - 1 # maximum value for any sample
 
     def __init__(self, y: float) -> None:
-        """Y is a number between 0 and 1, indicating the pitch as a
+        """Y is a number between 440 and 880 (0 and 1), indicating the pitch as a
         geometric interpolation between MIN_FREQ and MAX_FREQ."""
         # Clamp y to prevent seg-faulting
-        if y < 0 or y > 1:
-            freq:float = Tone.MAX_FREQ * 4
-        else:
-            freq = math.exp((1 - y) * Tone.LOG_MIN_FREQ + y * Tone.LOG_MAX_FREQ)
+        # if y < 0 or y > 1:
+        #     freq:float = Tone.MAX_FREQ * 4
+        # else:
+        #     freq = math.exp((1 - y) * Tone.LOG_MIN_FREQ + y * Tone.LOG_MAX_FREQ)
     
         # I want enough samples for 1 full cycle of the tone
-        length:float = Tone.SAMPLE_RATE / freq
+        length:float = Tone.SAMPLE_RATE / y #freq
         omega:float = 2 * np.pi / length
         xvalues = np.arange(int(length)) * omega
         #print(np.obj2sctype(xvalues))
