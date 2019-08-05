@@ -160,8 +160,8 @@ class Tone(object):
     SAMPLE_RATE = 22050
     MAX_SAMPLE = 2 ** 15 - 1 # maximum value for any sample
 
-    def __init__(self, y: float) -> None:
-        """Y is a number between 440 and 880, indicating a pitch in Hertz(HZ)"""
+    def __init__(self, freq: float) -> None:
+        """FREQ is a frequency in Hertz(HZ)."""
         # indicating the pitch as a
         # geometric interpolation between [MIN_FREQ and MAX_FREQ]."""
         # Clamp y to prevent seg-faulting
@@ -171,7 +171,7 @@ class Tone(object):
         #     freq = math.exp((1 - y) * Tone.LOG_MIN_FREQ + y * Tone.LOG_MAX_FREQ)
     
         # I want enough samples for 1 full cycle of the tone
-        length:float = Tone.SAMPLE_RATE / y #freq
+        length:float = 2 * Tone.SAMPLE_RATE / freq
         omega:float = 2 * np.pi / length
         xvalues = np.arange(int(length)) * omega
         #print(np.obj2sctype(xvalues))
@@ -186,10 +186,10 @@ class Tone(object):
     @staticmethod
     def mouseTone(y:float) -> float:
         # Takes a number between 0 and 1 and converts it into a tone in the
-        # frequency range of 110-220 Hz; to be used for the mouse.
-        minMouseTone = 110 #Tone.MIN_FREQ * 0.25
+        # frequency range of 220-440 Hz; to be used for the mouse.
+        minMouseTone = 220 #Tone.MIN_FREQ * 0.25
         logMinMouseTone = math.log(minMouseTone)
-        maxMouseTone = 220 #Tone.MAX_FREQ * 0.25
+        maxMouseTone = 440 #Tone.MAX_FREQ * 0.25
         logMaxMouseTone = math.log(maxMouseTone)
         if y < 0 or y > 1:
             mTone:float = maxMouseTone * 4
