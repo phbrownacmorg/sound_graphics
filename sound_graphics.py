@@ -161,8 +161,9 @@ class Tone(object):
     MAX_SAMPLE = 2 ** 15 - 1 # maximum value for any sample
 
     def __init__(self, y: float) -> None:
-        """Y is a number between 440 and 880 (0 and 1), indicating the pitch as a
-        geometric interpolation between MIN_FREQ and MAX_FREQ."""
+        """Y is a number between 440 and 880, indicating a pitch in Hertz(HZ)"""
+        # indicating the pitch as a
+        # geometric interpolation between [MIN_FREQ and MAX_FREQ]."""
         # Clamp y to prevent seg-faulting
         # if y < 0 or y > 1:
         #     freq:float = Tone.MAX_FREQ * 4
@@ -186,14 +187,14 @@ class Tone(object):
     def mouseTone(y:float) -> float:
         # Takes a number between 0 and 1 and converts it into a tone in the
         # frequency range of 110-220 Hz; to be used for the mouse.
-        MIN_MOUSE_TONE = 110 #Tone.MIN_FREQ * 0.25
-        LOG_MIN_MOUSE_TONE = math.log(MIN_MOUSE_TONE)
-        MAX_MOUSE_TONE = 220 #Tone.MAX_FREQ * 0.25
-        LOG_MAX_MOUSE_TONE = math.log(MAX_MOUSE_TONE)
+        minMouseTone = 110 #Tone.MIN_FREQ * 0.25
+        logMinMouseTone = math.log(minMouseTone)
+        maxMouseTone = 220 #Tone.MAX_FREQ * 0.25
+        logMaxMouseTone = math.log(maxMouseTone)
         if y < 0 or y > 1:
-            mTone:float = MAX_MOUSE_TONE * 4
+            mTone:float = maxMouseTone * 4
         else:
-            mTone = math.exp((1 - y) * LOG_MIN_MOUSE_TONE + y * LOG_MAX_MOUSE_TONE)
+            mTone = math.exp((1 - y) * logMinMouseTone + y * logMaxMouseTone)
         return mTone
 
 class SoundObject(g.GraphicsObject):
