@@ -541,7 +541,7 @@ def test() -> None:
     win.setCoords(0,0,10,10)
     t = Text(g.Point(5,5), "Centered Text")
     t.draw(win)
-    p = Polygon(g.Point(1,1), g.Point(5,3), g.Point(2,7), sound='Polygon')
+    p = Polygon(g.Point(1,1), g.Point(5,3), g.Point(2,7), sound=pygame.mixer.Sound('sounds/C5-Horn.wav'))
     p.draw(win)
     e = Entry(g.Point(5,6), 10)
     e.draw(win)

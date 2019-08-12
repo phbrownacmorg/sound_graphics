@@ -32,7 +32,7 @@ def main(args:List[str]) -> int:
     rect.draw(w)
     
     p3:Point = Point(575, 450)
-    oval:Oval = Oval(center, p3, sound=pygame.mixer.Sound('sounds/Kawai-K1r-FrenchHorn-C5.wav')) # sound=740.0)  #text='green oval')
+    oval:Oval = Oval(center, p3, sound=pygame.mixer.Sound('sounds/C5-Horn.wav')) # sound=740.0)  #text='green oval')
     oval.setFill('green')
     oval.draw(w)
     
