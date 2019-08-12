@@ -2,4 +2,5 @@
 .vscode/
 __pycache__/
 sounds/*.wav
+!sounds/C5-Horn.wav
 graphics.py
