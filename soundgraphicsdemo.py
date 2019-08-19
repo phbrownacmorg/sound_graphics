@@ -19,11 +19,11 @@ def main(args:List[str]) -> int:
     line.setArrow('first')
     #line.draw(w)
     
-    circ:Circle = Circle(p2, 75, text='Blue circle', sound=None)
+    circ:Circle = Circle(p2, 75, text='Blue circle', sound=0)
     circ.setFill('blue')
     circ.draw(w)
     
-    circ2:Circle = Circle(p2, 25, text='This circle is not blue.', sound=None)
+    circ2:Circle = Circle(p2, 25, text='This circle is not blue.', sound=0)
     circ2.setFill('white')
     circ2.draw(w)
     
@@ -41,7 +41,7 @@ def main(args:List[str]) -> int:
     line2.setOutline('red')
     line2.draw(w)
     
-    poly:Polygon = Polygon(p1, center, p3, sound=880.0) #sound='Pointy triangle')
+    poly:Polygon = Polygon(p1, center, p3, sound=880) #sound='Pointy triangle')
     poly.draw(w)
     
     p4:Point = Point(300, 550)

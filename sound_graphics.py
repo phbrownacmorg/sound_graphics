@@ -167,6 +167,13 @@ class Tone(object):
             mTone = math.exp((1 - y) * logMinMouseTone + y * logMaxMouseTone)
         return mTone
 
+    @staticmethod
+    def silence(seconds:float = 1) -> pygame.mixer.Sound:
+        """Creates and returns a silent Sound that is SECONDS seconds long (default 1)."""
+        length:int = int(seconds * Tone.SAMPLE_RATE)
+        sound = pygame.sndarray.make_sound(np.zeros((length, 2), dtype=np.int16));
+        return sound
+
 class SoundObject(g.GraphicsObject):
     def __init__(self, 
                  sound:Union[pygame.mixer.Sound,str,float,None]=None,
@@ -181,10 +188,17 @@ class SoundObject(g.GraphicsObject):
                 if len(sound) > 0:
                     self._sound = self.textToSpeech(sound)
                     self._loops = 0
-            elif isinstance(sound, float):
+            elif isinstance(sound, float) or isinstance(sound,int):
                 # Make a tone out of it
-                y:float = sound
-                self._sound = Tone(y).getSound()
+                y:float = float(sound)
+                if y > 0:
+                    self._sound = Tone(y).getSound()
+                else: # sound of silence
+                    if y < 0:
+                        y = -y
+                    else:
+                        y = 1.0
+                    self._sound = Tone.silence(y)
                 self._loops = -1
 
     @staticmethod
@@ -492,7 +506,7 @@ def update(rate:Optional[float]=None) -> None:
 def test() -> None:
     win = GraphWin()
     win.setCoords(0,0,10,10)
-    t = Text(g.Point(5,5), "Centered Text", None)
+    t = Text(g.Point(5,5), "Centered Text", sound=0)
     t.draw(win)
     p = Polygon(g.Point(1,1), g.Point(5,3), g.Point(2,7), sound=pygame.mixer.Sound('sounds/C5-Horn.wav'))
     p.draw(win)
