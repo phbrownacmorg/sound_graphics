@@ -19,11 +19,11 @@ def main(args:List[str]) -> int:
     line.setArrow('first')
     #line.draw(w)
     
-    circ:Circle = Circle(p2, 75, text='Blue circle')
+    circ:Circle = Circle(p2, 75, text='Blue circle', sound=None)
     circ.setFill('blue')
     circ.draw(w)
     
-    circ2:Circle = Circle(p2, 25, text='This circle is not blue.')
+    circ2:Circle = Circle(p2, 25, text='This circle is not blue.', sound=None)
     circ2.setFill('white')
     circ2.draw(w)
     
@@ -37,7 +37,7 @@ def main(args:List[str]) -> int:
     oval.draw(w)
     
     p5:Point = Point(150, 500)
-    line2:Line = Line(p5, center, text='This red line is way too big.')
+    line2:Line = Line(p5, center, text='This red line is way too big.', sound=None)
     line2.setOutline('red')
     line2.draw(w)
     
@@ -45,7 +45,7 @@ def main(args:List[str]) -> int:
     poly.draw(w)
     
     p4:Point = Point(300, 550)
-    caption:Text = Text(p4, 'Move the mouse to hear the objects. Click to exit.')
+    caption:Text = Text(p4, 'Move the mouse to hear the objects. Click to exit.', sound=None)
     caption.draw(w)
     
     w.getMouse()

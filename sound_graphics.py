@@ -7,7 +7,6 @@ import os
 import numbers
 import numpy as np
 import pygame
-import pyttsx3
 import pygame.mixer
 import pygame.sndarray
 import string
@@ -31,26 +30,6 @@ class GraphWin(g.GraphWin):
         self.bind("<Motion>", self._onMouseMove)
         self.bind("<Enter>", self._onEnter)
         self.bind("<Leave>", self._onLeave)
-
-        # Create the engine for pyttsx library
-        self.engine = pyttsx3.init()
-
-        def onStart(name):
-           pass # print('starting', name)
-           if self.itemsound == None:
-               self.engine.endLoop()
-        def onWord(name, location, length):
-            # print( 'word', name, location, length)
-            if self.itemsound == None:
-                self.engine.endLoop()
-                #self.itemsound = None
-        def onEnd(name, completed):
-            # print('finishing', name, completed)
-            self.engine.endLoop()
-
-        self.engine.connect('started-utterance', onStart)
-        self.engine.connect('started-word', onWord)
-        self.engine.connect('finished-utterance', onEnd)
 
         # Generate static programmatically
         noise = np.random.normal(0, 0.05, Tone.SAMPLE_RATE * 3)
@@ -77,25 +56,14 @@ class GraphWin(g.GraphWin):
 
     def runEngine(self, Xprop:float, sound:pygame.mixer.Sound, loops:int, 
                     mouseVol:float, bgVol:float, itemVol:float):
-
         self.mousechannel.set_volume(mouseVol * (1 - Xprop), mouseVol * Xprop)
         self.bgchannel.set_volume(bgVol * (1 - Xprop), bgVol * Xprop)
         if self.itemsound == None or self.itemsound != sound:
             self.itemchannel.stop()
-            # try:
-            #     self.engine.endLoop()
-            # except RuntimeError: # loop wasn't running
-            #     pass
-            self.engine.stop()
             self.itemsound = sound
             if issubclass(type(sound), pygame.mixer.Sound): # sound is a pygame.mixer.Sound
                 self.itemchannel.play(sound, loops)
                 self.itemchannel.set_volume(itemVol * (1 - Xprop), itemVol * Xprop)
-        if issubclass(type(sound), str): #and not self.engine.isBusy():
-            self.engine.setProperty('volume', itemVol)
-            self.engine.say(sound)
-            #self.engine.say("Engine is running, but we don't know if we can interrupt it.")
-            self.engine.startLoop()
 
     def _playSoundInside(self, Xprop:float, sound:pygame.mixer.Sound, 
             loops:int) -> None:
@@ -114,7 +82,6 @@ class GraphWin(g.GraphWin):
     def _onLeave(self, e:Event) -> None:
         self.bgchannel.stop()
         self.itemchannel.stop()
-        self.engine.stop()
         self.mousechannel.stop()
 
     def _onMouseMove(self, e:Event) -> None:
@@ -206,17 +173,13 @@ class SoundObject(g.GraphicsObject):
                  text:Optional[str]=None) -> None:
         self._sound:Optional[pygame.mixer.Sound] = None
 
-        # Backwards compatibility
-        if sound == None and text != None:
-            sound = text
-
         if sound != None:
             if hasattr(sound, 'play'): # sound is a Sound
                 self._sound = sound
                 self._loops:int = -1
             elif isinstance(sound, str): #sound is a string
                 if len(sound) > 0:
-                    self._sound = sound #self.textToSpeech(sound)
+                    self._sound = self.textToSpeech(sound)
                     self._loops = 0
             elif isinstance(sound, float):
                 # Make a tone out of it
@@ -529,7 +492,7 @@ def update(rate:Optional[float]=None) -> None:
 def test() -> None:
     win = GraphWin()
     win.setCoords(0,0,10,10)
-    t = Text(g.Point(5,5), "Centered Text")
+    t = Text(g.Point(5,5), "Centered Text", None)
     t.draw(win)
     p = Polygon(g.Point(1,1), g.Point(5,3), g.Point(2,7), sound=pygame.mixer.Sound('sounds/C5-Horn.wav'))
     p.draw(win)
