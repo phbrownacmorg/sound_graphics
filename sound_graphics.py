@@ -2,7 +2,6 @@
 # Peter Brown <phbrown@acm.org>, 2017-01-07
 
 import graphics as g
-from gtts import gTTS
 import math
 import os
 import numbers
@@ -16,7 +15,6 @@ import subprocess
 import sys
 from tkinter import Event
 from typing import Optional, List, Tuple, Union
-#import pyttsx
 
 class GraphWin(g.GraphWin):
     """Graphics window with additional sound.  The sound follows the
@@ -38,14 +36,16 @@ class GraphWin(g.GraphWin):
         self.engine = pyttsx3.init()
 
         def onStart(name):
-           print('starting', name)
+           pass # print('starting', name)
+           if self.itemsound == None:
+               self.engine.endLoop()
         def onWord(name, location, length):
-            print( 'word', name, location, length)
-            if location > 10:
+            # print( 'word', name, location, length)
+            if self.itemsound == None:
                 self.engine.endLoop()
-                self.itemsound = None
+                #self.itemsound = None
         def onEnd(name, completed):
-            print('finishing', name, completed)
+            # print('finishing', name, completed)
             self.engine.endLoop()
 
         self.engine.connect('started-utterance', onStart)
@@ -57,7 +57,6 @@ class GraphWin(g.GraphWin):
         noise = Tone.MAX_SAMPLE * noise
         stereo = np.resize(noise, (len(noise), 2))
         self.bgsound = pygame.sndarray.make_sound(np.asarray(stereo, dtype=np.int16))
-        #self.bgsound = pygame.mixer.Sound(file='sounds/bgstatic.wav')
         self.bgchannel = pygame.mixer.Channel(0)
         
         self.itemchannel = pygame.mixer.Channel(1)
@@ -83,6 +82,10 @@ class GraphWin(g.GraphWin):
         self.bgchannel.set_volume(bgVol * (1 - Xprop), bgVol * Xprop)
         if self.itemsound == None or self.itemsound != sound:
             self.itemchannel.stop()
+            # try:
+            #     self.engine.endLoop()
+            # except RuntimeError: # loop wasn't running
+            #     pass
             self.engine.stop()
             self.itemsound = sound
             if issubclass(type(sound), pygame.mixer.Sound): # sound is a pygame.mixer.Sound
@@ -229,18 +232,6 @@ class SoundObject(g.GraphicsObject):
         return result
 
     @staticmethod
-    def makeWavTTS(textarg:str, fname:str) -> None:
-        wavname = os.path.join('sounds', fname + '.wav')
-        mp3name = os.path.join('sounds', fname + '.mp3')
-        tts = gTTS(text=textarg, lang='en')
-        tts.save(mp3name)
-        ffmpegExe = 'ffmpeg'
-        if sys.platform == 'win32':
-            ffmpegExe = os.path.join('..','ffmpeg','bin','ffmpeg.exe')
-        subprocess.run([ffmpegExe, '-i', mp3name, wavname])
-        os.remove(mp3name)
-
-    @staticmethod
     def textToSpeech(text:str) -> pygame.mixer.Sound:
         fname = SoundObject.textToFilename(text)
         #print(fname)
@@ -248,8 +239,7 @@ class SoundObject(g.GraphicsObject):
         print(wavname)
         # If the WAV file doesn't exist already, create it
         if not os.path.isfile(wavname):
-            print('WAV does not exist.')
-            SoundObject.makeWavTTS(text, fname)
+            raise Exception('WAV does not exist.')
         return pygame.mixer.Sound(wavname)
 
     @staticmethod
