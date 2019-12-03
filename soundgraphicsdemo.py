@@ -43,12 +43,17 @@ def main(args:List[str]) -> int:
     
     poly:Polygon = Polygon(p1, center, p3, sound=880) #sound='Pointy triangle')
     poly.draw(w)
+
+    tri:Polygon = Polygon.makeEqTriangle(center, 10000, Polygon.LEFT,
+                                         pygame.mixer.Sound('sounds/C5-Horn.wav'))
+    tri.setFill('yellow')
+    tri.draw(w)
     
     p4:Point = Point(300, 550)
-    caption:Text = Text(p4, 'Move the mouse to hear the objects. Click to exit.', sound=None)
+    caption:Text = Text(p4, 'Move the mouse to hear the objects. Hit a key to exit.', sound=None)
     caption.draw(w)
     
-    w.getMouse()
+    print(w.getKey())
     w.close()
     
     return 0

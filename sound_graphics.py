@@ -113,7 +113,7 @@ class GraphWin(g.GraphWin):
             self._playSoundNear(Xprop, nearItem.sound(), nearItem.loops())
         else:
             self._playSoundOutside(Xprop)
-            
+
     def close(self) -> None:
         super().close()
         pygame.quit()
