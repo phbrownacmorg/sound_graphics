@@ -456,6 +456,53 @@ class Polygon(SoundObject, g.Polygon):
         # Otherwise, it's OUTSIDE
         return result
 
+    # Constants
+    RIGHT:int = 1
+    UP:int = 2
+    LEFT:int = 3
+    DOWN:int = 4
+
+    @staticmethod
+    def makeEqTriangle(center:g.Point, area:float, orientation:int,
+                       snd:Union[pygame.mixer.Sound,str,float,None] = None) \
+                       -> g.Polygon:
+        """Create and return a Polygon (not actually a g.Polygon) that is an
+        equilateral triangle with its centroid at CENTER, with area AREA,
+        oriented so one of its points points in the direction ORIENTATION, and
+        which makes SOUND."""
+        # Pre: orientation has to match one of the constants
+        assert orientation > 0 and orientation < 5 and area > 0
+        # Radius of the circumscribed circle
+        r:float = math.sqrt(area * 4 / (3 * math.sqrt(3)))
+        # Vertices
+        v:List[g.Point] = []
+        if orientation == Polygon.RIGHT:
+            p0 = g.Point(center.getX() + r, center.getY())
+            p1 = g.Point(center.getX() - r/2,
+                         center.getY() + r * math.sqrt(3)/2)
+            p2 = g.Point(center.getX() - r/2,
+                         center.getY() - r * math.sqrt(3)/2)
+        elif orientation == Polygon.LEFT:
+            p0 = g.Point(center.getX() - r, center.getY())
+            p1 = g.Point(center.getX() + r/2,
+                         center.getY() - r * math.sqrt(3)/2)
+            p2 = g.Point(center.getX() + r/2,
+                         center.getY() + r * math.sqrt(3)/2)
+        elif orientation == Polygon.UP:
+            p0 = g.Point(center.getX(), center.getY() - r)
+            p1 = g.Point(center.getX() + r * math.sqrt(3)/2,
+                         center.getY() + r/2)
+            p2 = g.Point(center.getX() - r * math.sqrt(3)/2,
+                         center.getY() + r/2)
+        elif orientation == Polygon.DOWN:
+            p0 = g.Point(center.getX(), center.getY() + r)
+            p1 = g.Point(center.getX() - r * math.sqrt(3)/2,
+                         center.getY() - r/2)
+            p2 = g.Point(center.getX() + r * math.sqrt(3)/2,
+                         center.getY() - r/2)
+        return Polygon(p0, p1, p2, sound=snd)
+                  
+    
 class Text(SoundObject, g.Text):
     def __init__(self, p:g.Point, text:str, 
                 sound:Union[pygame.mixer.Sound,str,float,None]=None, 
@@ -512,6 +559,8 @@ def test() -> None:
     p.draw(win)
     e = Entry(g.Point(5,6), 10)
     e.draw(win)
+    tri = Polygon.makeEqTriangle(g.Point(5, 5), 25, Polygon.LEFT, pygame.mixer.Sound('sounds/C5-Horn.wav'))
+    tri.draw(win)
     win.getMouse()
     p.setFill("red")
     p.setOutline("blue")
