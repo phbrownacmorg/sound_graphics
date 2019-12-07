@@ -11,7 +11,8 @@ conditions = ["mouse", "tablet"]
 
 # TO BE FILLED IN: this should be a list of locations.  Each location should
 # be specified by its coordinates (which can be a Tuple[float, float]).
-locations:List[Tuple[float, float]] = [] 
+locations:List[Tuple[float, float]] = [(0.5, 0.5), (1, -0.5), (-0.5, -1),
+                                       (0, 0), (-1, 1), (0, 1)] 
 
 shape = ['circle', 'triangle']
 
@@ -19,7 +20,7 @@ shape = ['circle', 'triangle']
 # areas or as circle radii.  If you choose areas, you'll need to convert the
 # areas to radii when you make circles, and if you choose radii, you'll need to
 # convert those radii to areas (pi * radius**2) to make triangles.  Your choice.
-sizes:List[float] = []
+sizes:List[float] = [1, 1.5, 2]
 
 # Create the trial sequences
 
@@ -99,7 +100,7 @@ def run_trial_set(observer:int, condition:str) -> None:
     """Run the trials for observer number OBSERVER in condition CONDITION,
     recording results as we go."""
     # This function is substantially complete
-    GraphWin w = GraphWin('sound_graphics experiment', 700, 700)
+    w = GraphWin('sound_graphics experiment', 700, 700)
     w.setCoords(-4, -4, 4, 4)
     
     with open('obs'+str(observer)+'-'+condition+'.csv', 'a') as outfile:
