@@ -1,5 +1,6 @@
 from sound_graphics import *
-import datetime
+import time
+from datetime import datetime
 import math
 import random
 import sys
@@ -13,7 +14,7 @@ conditions = ["mouse", "tablet"]
 # TO BE FILLED IN: this should be a list of locations.  Each location should
 # be specified by its coordinates (which can be a Tuple[float, float]).
 locations:List[Tuple[float, float]] = [(0.5, 0.5), (1, -0.5), (-0.5, -1),
-                                       (0, 0), (-1, 1), (0, 1)] 
+                                       (0, 0), (-1, 1)] 
 
 shape = ['circle', 'triangle']
 
@@ -53,7 +54,7 @@ for i in range(1, num_observers + 1):
             t['shape'] = shape[1 - j] # Do the triangle first
             t['size'] = sizes[1] # Intermediate size
             t['point'] = locations[3 + j] # Taken from locations[3:4]
-            trials[i][c].append(t)
+            trials[i][conditions.index(c)].append(t)
 
         # All possible combinations of size, shape, and location
         combos = list(range(12)) 
@@ -66,7 +67,7 @@ for i in range(1, num_observers + 1):
             t['size'] = sizes[2 * (combos[j] % 2)]
             # Point is drawn from locations[0-2], according to combo % 3
             t['point'] = locations[combos[j] % 3]
-            trials[i][c].append(t)
+            trials[i][conditions.index(c)].append(t)
 
 def run_trial(trial, outfile, observer, condition, w):
     """Run a trial, using the trial specification in TRIAL and recording
@@ -78,7 +79,7 @@ def run_trial(trial, outfile, observer, condition, w):
     orientation = None
     
     if trial['shape'] == 'circle':
-        figure = Circle(trial['point'], trial['size'],
+        figure = Circle(Point(trial['point'][0], trial['point'][1]), trial['size'],
                         pygame.mixer.Sound('sounds/C5-Horn.wav'))
     elif trial['shape'] == 'triangle':
         # Make the triangle (if it is a triangle) point more or less towards
@@ -91,7 +92,7 @@ def run_trial(trial, outfile, observer, condition, w):
             orientation = Polygon.LEFT
         elif (-math.pi / 4) > angle >= (-3 * math.pi/4):
             orientation = Polygon.DOWN
-        figure = Polygon.makeEqTriangle(trial['point'],
+        figure = Polygon.makeEqTriangle(Point(trial['point'][0], trial['point'][1]),
                                         math.pi * trial['size']**2,
                                         orientation,
                                         pygame.mixer.Sound('sounds/C5-Horn.wav'))
@@ -103,7 +104,7 @@ def run_trial(trial, outfile, observer, condition, w):
     end_time = datetime.now()
 
     # Record the results and clean up
-    figure.undraw(w)
+    figure.undraw()
     
     if key == 'space':
         choice = 'circle'
@@ -124,7 +125,7 @@ def run_trial_set(observer:int, condition:str) -> None:
     w.setCoords(-4, -4, 4, 4)
     
     with open('obs'+str(observer)+'-'+condition+'.csv', 'a') as outfile:
-        for t in trials[observer][condition]:
+        for t in trials[observer][conditions.index(condition)]:
             run_trial(t, outfile, observer, condition, w)
 
     w.close()
