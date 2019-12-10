@@ -437,7 +437,7 @@ class Polygon(SoundObject, g.Polygon):
         for i in range(len(self.points)):
             start:Tuple[int, int] = self.ptToScreenTuple(self.points[i])
             end:Tuple[int, int] = self.ptToScreenTuple(self.points[(i+1) % len(self.points)])
-            if ((start[1] - y) * (end[1] - y) <= 0) \
+            if ((start[1] - y) * (end[1] - y) < 0) \
                 and (start[0] >= x or end[0] >= x) \
                 and ((start[0] + (((y - start[1])*(end[0] - start[0]))/(end[1] - start[1]))) \
                       >= x):

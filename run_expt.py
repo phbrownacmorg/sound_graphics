@@ -105,6 +105,10 @@ def run_trial(trial, outfile, observer, condition, w):
 
     # Record the results and clean up
     figure.undraw()
+
+    # Stop the sound, so the user knows there's been a change
+    w.itemchannel.stop();
+    w.itemsound = None;
     
     if key == 'space':
         choice = 'circle'
