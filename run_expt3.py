@@ -14,7 +14,7 @@ conditions = ["mouse", "tablet"]
 
 # TO BE FILLED IN: this should be a list of locations.  Each location should
 # be specified by its coordinates (which can be a Tuple[float, float]).
-locations:List[Tuple[float, float]] = [(0.5, 0.5), (1, -0.5), (-0.5, -1),
+locations:List[Tuple[float, float]] = [(0.5, 0.5), (-0.5, -1), (1, -0.5),
                                        (0, 0), (-1, 1)] 
 
 shape = ['circle', 'rectangle']
@@ -54,23 +54,24 @@ for i in range(1, num_observers + 1):
             t = {} # Empty dictionary for the trial
             t['shape'] = shape[1 - j] # Do the triangle first
             t['size'] = sizes[1] # Intermediate size
-            t['point'] = locations[3 + j] # Taken from locations[3:4]
+            t['point'] = locations[-2 + j] # Taken from locations[-2:]
             trials[i][conditions.index(c)].append(t)
 
         # All possible combinations of size, shape, and location
         num_sizes = len(sizes) - 1
-        num_locations = 1
+        num_locations = 2
         num_shapes = len(shape)
         num_trials = num_sizes * num_locations * num_shapes
         combos = list(range(num_trials)) 
         random.shuffle(combos) # Randomize the order
-        for j in range(num_trials): # 12 experimental trials
+        for j in range(num_trials): # Experimental trials
             t = {}
-            # Shape is circle for combos 0-5 and triangle for combos 6-11
+            # Shape is all circles for the low-numbered combos and
+            #  all the other shape for the high-numbered trials
             t['shape'] = shape[combos[j] // (num_sizes * num_locations)]
             # Size is sizes[0] for even combos, sizes[2] for odd combos
             t['size'] = sizes[2 * (combos[j] % num_sizes)]
-            # Point is drawn from locations[0-2], according to combo % 3
+            # Point is drawn from the first locations
             t['point'] = locations[(combos[j] % num_shapes) // num_locations]
             trials[i][conditions.index(c)].append(t)
 
@@ -85,7 +86,7 @@ def run_trial(trial, outfile, observer, condition, w):
     
     if trial['shape'] == 'circle':
         figure = Circle(g.Point(trial['point'][0], trial['point'][1]),
-                        trial['size'], pygame.mixer.Sound('sounds/C5-Horn.wav'))
+                        trial['size'], pygame.mixer.Sound('sounds/C3-cello.5s.ogg'))
     elif trial['shape'] == 'rectangle':
         # Actually the square root of the ratio of the sides
         eccentricity = 1.65 
@@ -99,23 +100,8 @@ def run_trial(trial, outfile, observer, condition, w):
             vside = side * eccentricity
         p1 = g.Point(trial['point'][0]-(hside/2), trial['point'][1]-(vside/2))
         p2 = g.Point(trial['point'][0]+(hside/2), trial['point'][1]+(vside/2))
-        figure = Rectangle(p1, p2, pygame.mixer.Sound('sounds/C5-Horn.wav'))
-        
-        # Make the triangle (if it is a triangle) point more or less towards
-        #   the center
-        # orientation = Polygon.RIGHT
-        # angle = math.atan2(trial['point'][1], trial['point'][0])
-        # if (3 * math.pi/4) > angle >= (math.pi / 4):
-        #     orientation = Polygon.UP # Coordinates have been turned upside down
-        # elif (math.pi / 4) > angle >= (-math.pi / 4):
-        #     orientation = Polygon.LEFT
-        # elif (-math.pi / 4) > angle >= (-3 * math.pi/4):
-        #     orientation = Polygon.DOWN
-        # figure = Polygon.makeEqTriangle(Point(trial['point'][0], trial['point'][1]),
-        #                                 math.pi * trial['size']**2,
-        #                                 orientation,
-        #                                 pygame.mixer.Sound('sounds/C5-Horn.wav'))
-            
+        figure = Rectangle(p1, p2, pygame.mixer.Sound('sounds/C3-cello.5s.ogg'))
+                    
     figure.draw(w)
 
     # Run the actual trial
@@ -140,6 +126,8 @@ def run_trial(trial, outfile, observer, condition, w):
                   + str(orientation) + ',' + str(start_time) + ','
                   + str(end_time) + ',' + choice + '\n') 
 
+def getLikert(msg):
+    return int(input(msg))
     
 def run_trial_set(observer:int, condition:str) -> None:
     """Run the trials for observer number OBSERVER in condition CONDITION,
@@ -148,20 +136,24 @@ def run_trial_set(observer:int, condition:str) -> None:
     w = GraphWin('sound_graphics experiment', 700, 700)
     w.setCoords(-4, -4, 4, 4)
     w.setBackground('white')
-    w.bgchannel.stop()
     
     with open('obs'+str(observer)+'-'+condition+'.csv', 'a') as outfile:
         for t in trials[observer][conditions.index(condition)]:
             run_trial(t, outfile, observer, condition, w)
-
-    w.close()
+        w.close()
+        conf = getLikert('On a scale of 1 to 5, how confident are you in '
+                         + 'your answers?\n1 = totally guessing, 5 = total '
+                         + 'confidence: ')
+        ease = getLikert('On a scale of 1 to 5, how easy did you find the task?'
+                         + '\n1 = really hard, 5 = really easy: ')
+        outfile.write('Confidence,' + str(conf) + ',Ease,' + str(ease) + '\n')
             
 def main(args: List[str]) -> int:
     # Set the observer number and the experimental condition.  This function
     # is probably about complete.
-    observer = int(input('Please enter the observer number:'))
+    observer = int(input('Please enter the observer number: '))
     
-    cond_code = input('Is this trial set using the mouse (m) or tablet (t)?')
+    cond_code = input('Is this trial set using the mouse (m) or tablet (t)? ')
     cond_code = cond_code.strip().lower()
     condition = ''
     if cond_code.startswith('m'):

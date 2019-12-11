@@ -63,25 +63,25 @@ class GraphWin(g.GraphWin):
             self.itemsound = sound
             if issubclass(type(sound), pygame.mixer.Sound): # sound is a pygame.mixer.Sound
                 self.itemchannel.play(sound, loops)
-                self.itemchannel.set_volume(itemVol * (1 - Xprop), itemVol * Xprop)
+        self.itemchannel.set_volume(itemVol * (1 - Xprop), itemVol * Xprop)
 
     def _playSoundInside(self, Xprop:float, sound:pygame.mixer.Sound, 
             loops:int) -> None:
-        #self.runEngine(Xprop, sound, loops, 0, 0, 1.0)
-        self.runEngine(Xprop, sound, loops, 0, 0, 0.5)
+        self.runEngine(Xprop, sound, loops, 0, 0, 1.0)
+        #self.runEngine(Xprop, sound, loops, 0, 0, 0.5)
             
     def _playSoundNear(self, Xprop:float, sound:pygame.mixer.Sound, 
             loops:int) -> None:
         #self.runEngine(Xprop, sound, loops, 0.1, 0.1, 0.3)
-        self.runEngine(Xprop, sound, loops, 0, 0, 0)
+        self.runEngine(Xprop, sound, loops, 0.5, 0, 0.5)
 
     def _playSoundOutside(self, Xprop:float) -> None:
         #self.runEngine(Xprop, None, 0, 0.1, 0.5, 0)
-        self.runEngine(Xprop, None, 0, 0, 0, 0)
+        self.runEngine(Xprop, None, 0, 0.5, 0, 0)
 
     def _onEnter(self, e:Event) -> None:
-        pass
-        #self.bgchannel.play(self.bgsound, loops=-1)
+        #pass
+        self.bgchannel.play(self.bgsound, loops=-1)
 
     def _onLeave(self, e:Event) -> None:
         self.bgchannel.stop()
