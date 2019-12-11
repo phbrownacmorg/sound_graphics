@@ -1,6 +1,7 @@
 .mypy_cache/
 .vscode/
 __pycache__/
+*~
 sounds/*
 !sounds/C5-Horn.wav
 !sounds/C3-cello.5s.ogg
